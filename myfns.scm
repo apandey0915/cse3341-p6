@@ -9,6 +9,7 @@
 	(cons (cons id val) env)
 )
 
+; returns 0 if id is unbound
 (define (lookup id env)
 	(cond
 		((null? env) 0)
@@ -23,6 +24,7 @@
 	(list 'function param body)
 )
 
+; extract pieces from a function value
 (define (fun-param fn)
 	(cadr fn)
 )
@@ -35,8 +37,8 @@
 ; main evaluator
 (define (evalExpr expr env)
 	(cond
-		((integer? expr) expr)
-		((symbol? expr) (lookup expr env))
+		((integer? expr) expr) ; number literal
+		((symbol? expr) (lookup expr env)) ; variable
 
 		((and (list? expr) (equal? (car expr) 'planIf))
 			(evalIf expr env))
@@ -54,9 +56,7 @@
 			(evalApp expr env))
 	)
 )
-
-
-
+; planIf form
 (define (evalIf expr env)
 	(let ((condVal (evalExpr (cadr expr) env)))
 		(if (> condVal 0)
@@ -66,6 +66,7 @@
 	)
 )
 
+; arithmetic forms
 (define (evalAdd expr env)
 	(+ (evalExpr (cadr expr) env)
 		(evalExpr (caddr expr) env)
@@ -84,6 +85,7 @@
 	)
 )
 
+; planLet form, supports both values and functions
 (define (evalLet expr env)
 	(let ((id   (cadr expr))
 			(rhs  (caddr expr))
